@@ -32,7 +32,36 @@ class Quest2:
         return total
         
     def part3(self, input):
-        return False
+        lines = input.splitlines()
+        runic_words = self._runic_words(lines[0])
+        runic_words += [word[::-1] for word in runic_words]
+        horizontal_inscriptions = lines[2:]
+        vertical_inscriptions = [''.join([horizontal_inscriptions[j][i] for j in range(len(horizontal_inscriptions))]) for i in range(len(horizontal_inscriptions[0]))]
+        
+        found = [[False] * len(horizontal_inscriptions[0]) for _ in range(len(horizontal_inscriptions))]
+
+        for num in range(len(horizontal_inscriptions)):
+            inscription = horizontal_inscriptions[num]
+            length = len(inscription)
+            inscription *= 2
+            for i in range(length):
+                for word in runic_words:
+                    if inscription[i:i+len(word)] == word:
+                        for j in range(len(word)):
+                            found[num][(i+j) % length] = True
+        
+        for num in range(len(vertical_inscriptions)):
+            inscription = vertical_inscriptions[num]
+            length = len(inscription)
+            for i in range(length):
+                for word in runic_words:
+                    if inscription[i:i+len(word)] == word:
+                        for j in range(len(word)):
+                            found[(i+j)][num] = True
+
+        total = sum([row.count(True) for row in found])
+
+        return total
 
 class TestQuest2(unittest.TestCase):
     quest = Quest2()
@@ -54,14 +83,14 @@ QAQAQ"""
         result = self.quest.part2(input)
         self.assertEqual(result, 42)
 
-#     def test_part3(self):
-#         input = """WORDS:THE,OWE,MES,ROD,RODEO
+    def test_part3(self):
+        input = """WORDS:THE,OWE,MES,ROD,RODEO
 
-# HELWORLT
-# ENIGWDXL
-# TRODEOAL"""
-#         result = self.quest.part3(input)
-#         self.assertEqual(result, 10)
+HELWORLT
+ENIGWDXL
+TRODEOAL"""
+        result = self.quest.part3(input)
+        self.assertEqual(result, 10)
 
 if __name__ == '__main__':
     unittest.main()
